@@ -72,6 +72,8 @@
         'src/libmpg123/libmpg123.c',
         'src/libmpg123/index.c',
         'src/libmpg123/stringbuf.c',
+        'src/libmpg123/icy.c',
+        'src/libmpg123/icy2utf8.c',
         'src/libmpg123/ntom.c',
         'src/libmpg123/synth.c',
         'src/libmpg123/synth_8bit.c',
