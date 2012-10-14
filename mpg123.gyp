@@ -32,6 +32,22 @@
         'GenerateDebugInformation': 'true',
       },
     },
+    'conditions': [
+      ['OS=="mac"', {
+        'conditions': [
+          ['target_arch=="ia32"', {
+            'xcode_settings': {
+              'ARCHS': [ 'i386' ]
+            },
+          }],
+          ['target_arch=="x64"', {
+            'xcode_settings': {
+              'ARCHS': [ 'x86_64' ]
+            },
+          }]
+        ]
+      }]
+    ]
   },
 
   'targets': [
@@ -77,18 +93,19 @@
         'PIC',
         'HAVE_CONFIG_H'
       ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          'src/libmpg123',
+          # platform and arch-specific headers
+          'config/<(OS)/<(target_arch)',
+        ]
+      },
       'conditions': [
         ['OS=="mac"', {
           'conditions': [
             ['target_arch=="ia32"', {
-              'xcode_settings': {
-                'ARCHS': [ 'i386' ]
-              },
             }],
             ['target_arch=="x64"', {
-              'xcode_settings': {
-                'ARCHS': [ 'x86_64' ]
-              },
               'defines': [
                 'OPT_MULTI',
                 'OPT_X86_64',
@@ -113,6 +130,13 @@
           ]
         }]
       ]
+    },
+
+    {
+      'target_name': 'test',
+      'type': 'executable',
+      'dependencies': [ 'mpg123' ],
+      'sources': [ 'test.c' ]
     }
   ]
 }
