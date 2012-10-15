@@ -82,7 +82,6 @@
         'src/libmpg123/layer3.c',
         'src/libmpg123/synth_s32.c',
         'src/libmpg123/synth_real.c',
-        'src/libmpg123/getcpuflags.c',
         'src/libmpg123/dither.c',
         'src/libmpg123/feature.c',
         'src/libmpg123/lfs_alias.c',
@@ -144,6 +143,7 @@
                 'src/libmpg123/synth_sse_s32.S',
                 'src/libmpg123/synth_stereo_sse_s32.S',
                 'src/libmpg123/synth_sse.S',
+                'src/libmpg123/getcpuflags.S',
               ]
             }],
             ['target_arch=="x64"', {
