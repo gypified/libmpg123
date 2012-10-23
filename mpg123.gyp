@@ -8,7 +8,8 @@
 
 {
   'variables': {
-    'target_arch%': 'ia32'
+    'target_arch%': 'ia32',
+    'output_module%': 'coreaudio'
   },
   'target_defaults': {
     'default_configuration': 'Debug',
@@ -48,8 +49,13 @@
               'ARCHS': [ 'x86_64' ]
             },
           }]
-        ]
-      }]
+        ],
+        'variables': {
+          'output_module%': 'coreaudio'
+        },
+      }],
+      ['OS=="win"', { 'variables': { 'output_module%': 'win32' } }],
+      ['OS=="linux"', { 'variables': { 'output_module%': 'alsa' } }],
     ]
   },
 
@@ -171,10 +177,59 @@
     },
 
     {
+      'target_name': 'output',
+      'product_prefix': 'lib',
+      'type': 'static_library',
+      'include_dirs': [
+        'src',
+        'src/libmpg123',
+        # platform and arch-specific headers
+        'config/<(OS)/<(target_arch)',
+      ],
+      'defines': [
+        'BUILDING_OUTPUT_MODULES=1'
+      ],
+      'direct_dependent_settings': {
+        'include_dirs': [
+          'src',
+          'src/libmpg123',
+          # platform and arch-specific headers
+          'config/<(OS)/<(target_arch)',
+        ]
+      },
+      'conditions': [
+        ['output_module=="coreaudio"', {
+          'direct_dependent_settings': {
+            'libraries': [
+              '-framework AudioToolbox',
+              '-framework AudioUnit',
+              '-framework CoreServices',
+            ],
+          },
+        }],
+        ['output_module=="openal"', {
+          'direct_dependent_settings': {
+            'libraries': [
+              '-framework OpenAL',
+            ]
+          }
+        }],
+      ],
+      'sources': [ 'src/output/<(output_module).c' ],
+    },
+
+    {
       'target_name': 'test',
       'type': 'executable',
       'dependencies': [ 'mpg123' ],
       'sources': [ 'test.c' ]
+    },
+
+    {
+      'target_name': 'output_test',
+      'type': 'executable',
+      'dependencies': [ 'output' ],
+      'sources': [ 'test_output.c' ]
     }
   ]
 }
