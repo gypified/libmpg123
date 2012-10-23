@@ -208,6 +208,9 @@
           },
         }],
         ['output_module=="openal"', {
+          'defines': [
+            'OPENAL_SUBDIR_OPENAL'
+          ],
           'direct_dependent_settings': {
             'libraries': [
               '-framework OpenAL',

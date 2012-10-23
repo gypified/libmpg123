@@ -21,7 +21,7 @@ int main () {
   audio_output_t ao;
   memset(&ao, 0, sizeof(audio_output_t)); /* nullify all fields */
   ao.channels = 2; /* channels */
-  ao.rate = 41000; /* rample rate */
+  ao.rate = 44100; /* rample rate */
   ao.format = MPG123_ENC_SIGNED_16; /* bit depth, is signed?, int/float */
 
   /* init_output() */
