@@ -172,6 +172,13 @@
         ]
       },
       'conditions': [
+        ['output_module=="alsa"', {
+          'direct_dependent_settings': {
+            'libraries': [
+              '-lasound',
+            ]
+          }
+        }],
         ['output_module=="coreaudio"', {
           'direct_dependent_settings': {
             'libraries': [
