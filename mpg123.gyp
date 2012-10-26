@@ -10,9 +10,19 @@
   'variables': {
     'target_arch%': 'ia32',
     'conditions': [
-      ['OS=="mac"', { 'output_module%': 'coreaudio' }],
-      ['OS=="win"', { 'output_module%': 'win32' }],
-      ['OS=="linux"', { 'output_module%': 'alsa' }],
+      # "mpg123_cpu" is the cpu optimization to use
+      # Windows uses "i386_fpu" even on x64 to avoid compiling .S asm files
+      # (I don't think the 64-bit ASM files are compatible with `ml`/`ml64`...)
+      ['OS=="win"', { 'mpg123_cpu%': 'i386_fpu' },
+      { 'conditions': [
+        ['target_arch=="ia32"', { 'mpg123_cpu%': 'i386_fpu' }],
+        ['target_arch=="x64"', { 'mpg123_cpu%': 'x86-64' }],
+      ]}],
+      # "mpg123_backend" is the audio backend to use when compiling
+      # the "output module"
+      ['OS=="mac"', { 'mpg123_backend%': 'coreaudio' }],
+      ['OS=="win"', { 'mpg123_backend%': 'win32' }],
+      ['OS=="linux"', { 'mpg123_backend%': 'alsa' }],
     ]
   },
   'target_defaults': {
@@ -43,16 +53,8 @@
     'conditions': [
       ['OS=="mac"', {
         'conditions': [
-          ['target_arch=="ia32"', {
-            'xcode_settings': {
-              'ARCHS': [ 'i386' ]
-            },
-          }],
-          ['target_arch=="x64"', {
-            'xcode_settings': {
-              'ARCHS': [ 'x86_64' ]
-            },
-          }]
+          ['target_arch=="ia32"', { 'xcode_settings': { 'ARCHS': [ 'i386' ] } }],
+          ['target_arch=="x64"', { 'xcode_settings': { 'ARCHS': [ 'x86_64' ] } }]
         ],
       }],
     ]
@@ -87,9 +89,7 @@
         'src/libmpg123/layer3.c',
         'src/libmpg123/synth_s32.c',
         'src/libmpg123/synth_real.c',
-        'src/libmpg123/dither.c',
         'src/libmpg123/feature.c',
-        'src/libmpg123/lfs_alias.c',
       ],
       'include_dirs': [
         'src/libmpg123',
@@ -98,7 +98,9 @@
       ],
       'defines': [
         'PIC',
-        'HAVE_CONFIG_H'
+        'NOXFERMEM',
+        'REAL_IS_FLOAT',
+        'HAVE_CONFIG_H',
       ],
       'direct_dependent_settings': {
         'include_dirs': [
@@ -108,42 +110,28 @@
         ]
       },
       'conditions': [
-        ['target_arch=="ia32"', {
+        ['mpg123_cpu=="i386_fpu"', {
           'defines': [
             'OPT_I386',
-            'REAL_IS_FLOAT',
             'NEWOLD_WRITE_SAMPLE',
           ],
           'sources': [
             'src/libmpg123/dct64_i386.c',
           ],
         }],
-        ['target_arch=="x64"', {
+        ['mpg123_cpu=="x86-64"', {
           'defines': [
-            'OPT_MULTI',
             'OPT_X86_64',
-            'OPT_GENERIC',
-            'OPT_GENERIC_DITHER',
-            'REAL_IS_FLOAT',
           ],
           'sources': [
             'src/libmpg123/dct64_x86_64.S',
             'src/libmpg123/dct64_x86_64_float.S',
-            'src/libmpg123/synth_x86_64_float.S',
-            'src/libmpg123/synth_x86_64_s32.S',
+            'src/libmpg123/synth_stereo_x86_64.S',
             'src/libmpg123/synth_stereo_x86_64_float.S',
             'src/libmpg123/synth_stereo_x86_64_s32.S',
             'src/libmpg123/synth_x86_64.S',
-            'src/libmpg123/synth_stereo_x86_64.S',
-          ],
-        }],
-        ['OS=="mac"', {
-          'conditions': [
-            ['target_arch=="ia32"', {
-              'sources': [
-                'src/libmpg123/getcpuflags.S',
-              ]
-            }],
+            'src/libmpg123/synth_x86_64_s32.S',
+            'src/libmpg123/synth_x86_64_float.S',
           ],
         }],
       ],
@@ -171,14 +159,14 @@
         ]
       },
       'conditions': [
-        ['output_module=="alsa"', {
+        ['mpg123_backend=="alsa"', {
           'direct_dependent_settings': {
             'libraries': [
               '-lasound',
             ]
           }
         }],
-        ['output_module=="coreaudio"', {
+        ['mpg123_backend=="coreaudio"', {
           'direct_dependent_settings': {
             'libraries': [
               '-framework AudioToolbox',
@@ -187,7 +175,7 @@
             ],
           },
         }],
-        ['output_module=="openal"', {
+        ['mpg123_backend=="openal"', {
           'defines': [
             'OPENAL_SUBDIR_OPENAL'
           ],
@@ -198,7 +186,7 @@
           }
         }],
       ],
-      'sources': [ 'src/output/<(output_module).c' ],
+      'sources': [ 'src/output/<(mpg123_backend).c' ],
     },
 
     {
