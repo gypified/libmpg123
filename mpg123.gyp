@@ -9,21 +9,6 @@
 {
   'variables': {
     'target_arch%': 'ia32',
-    'conditions': [
-      # "mpg123_cpu" is the cpu optimization to use
-      # Windows uses "i386_fpu" even on x64 to avoid compiling .S asm files
-      # (I don't think the 64-bit ASM files are compatible with `ml`/`ml64`...)
-      ['OS=="win"', { 'mpg123_cpu%': 'i386_fpu' },
-      { 'conditions': [
-        ['target_arch=="ia32"', { 'mpg123_cpu%': 'i386_fpu' }],
-        ['target_arch=="x64"', { 'mpg123_cpu%': 'x86-64' }],
-      ]}],
-      # "mpg123_backend" is the audio backend to use when compiling
-      # the "output module"
-      ['OS=="mac"', { 'mpg123_backend%': 'coreaudio' }],
-      ['OS=="win"', { 'mpg123_backend%': 'win32' }],
-      ['OS=="linux"', { 'mpg123_backend%': 'alsa' }],
-    ]
   },
   'target_defaults': {
     'default_configuration': 'Debug',
@@ -65,6 +50,18 @@
       'target_name': 'mpg123',
       'product_prefix': 'lib',
       'type': 'static_library',
+      'variables': {
+        'conditions': [
+          # "mpg123_cpu" is the cpu optimization to use
+          # Windows uses "i386_fpu" even on x64 to avoid compiling .S asm files
+          # (I don't think the 64-bit ASM files are compatible with `ml`/`ml64`...)
+          ['OS=="win"', { 'mpg123_cpu%': 'i386_fpu' },
+          { 'conditions': [
+            ['target_arch=="ia32"', { 'mpg123_cpu%': 'i386_fpu' }],
+            ['target_arch=="x64"', { 'mpg123_cpu%': 'x86-64' }],
+          ]}],
+        ]
+      },
       'sources': [
         'src/libmpg123/compat.c',
         'src/libmpg123/parse.c',
@@ -141,6 +138,15 @@
       'target_name': 'output',
       'product_prefix': 'lib',
       'type': 'static_library',
+      'variables': {
+        'conditions': [
+          # "mpg123_backend" is the audio backend to use when compiling
+          # the "output module"
+          ['OS=="mac"', { 'mpg123_backend%': 'coreaudio' }],
+          ['OS=="win"', { 'mpg123_backend%': 'win32' }],
+          ['OS=="linux"', { 'mpg123_backend%': 'alsa' }],
+        ]
+      },
       'include_dirs': [
         'src',
         'src/libmpg123',
