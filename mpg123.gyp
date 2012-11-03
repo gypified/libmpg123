@@ -97,7 +97,6 @@
       'defines': [
         'PIC',
         'NOXFERMEM',
-        'REAL_IS_FLOAT',
         'HAVE_CONFIG_H',
       ],
       'direct_dependent_settings': {
@@ -108,9 +107,20 @@
         ]
       },
       'conditions': [
+        ['mpg123_cpu=="arm_nofpu"', {
+          'defines': [
+            'OPT_ARM',
+            'REAL_IS_FIXED',
+            'NEWOLD_WRITE_SAMPLE',
+          ],
+          'sources': [
+            'src/libmpg123/synth_arm.c',
+          ],
+        }],
         ['mpg123_cpu=="i386_fpu"', {
           'defines': [
             'OPT_I386',
+            'REAL_IS_FLOAT',
             'NEWOLD_WRITE_SAMPLE',
           ],
           'sources': [
@@ -120,6 +130,7 @@
         ['mpg123_cpu=="x86-64"', {
           'defines': [
             'OPT_X86_64',
+            'REAL_IS_FLOAT',
           ],
           'sources': [
             'src/libmpg123/dct64_x86_64.S',
