@@ -57,6 +57,7 @@
           # (I don't think the 64-bit ASM files are compatible with `ml`/`ml64`...)
           ['OS=="win"', { 'mpg123_cpu%': 'i386_fpu' },
           { 'conditions': [
+            ['target_arch=="arm"', { 'mpg123_cpu%': 'arm_nofpu' }],
             ['target_arch=="ia32"', { 'mpg123_cpu%': 'i386_fpu' }],
             ['target_arch=="x64"', { 'mpg123_cpu%': 'x86-64' }],
           ]}],
